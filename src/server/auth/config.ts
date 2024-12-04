@@ -5,6 +5,7 @@ import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
+import { z } from "zod";
 import { db } from "~/server/db";
 
 declare module "next-auth" {
@@ -14,6 +15,11 @@ declare module "next-auth" {
     } & DefaultSession["user"];
   }
 }
+
+const credentialsSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
+});
 
 export const authConfig = {
   providers: [
@@ -26,14 +32,25 @@ export const authConfig = {
         username: { label: "Username", type: "text", placeholder: "username" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(
+        credentials: Partial<Record<"username" | "password", unknown>>,
+        req: Request,
+      ) {
         try {
-          if (!credentials?.username || !credentials?.password) {
-            console.log("Missing credentials in auth attempt");
+          const result = credentialsSchema.safeParse({
+            username: credentials?.username,
+            password: credentials?.password,
+          });
+
+          if (!result.success) {
+            console.log("Invalid credentials:", result.error.errors);
             return null;
           }
+
+          const { username, password } = result.data;
+
           const user = await db.user.findUnique({
-            where: { username: credentials.username },
+            where: { username },
             select: {
               id: true,
               name: true,
@@ -49,12 +66,9 @@ export const authConfig = {
             return null;
           }
 
-          const isPasswordValid = user.password.startsWith("$2y$")
-            ? await bcrypt.compare(
-                credentials.password,
-                user.password.replace("$2y$", "$2b$"),
-              )
-            : await bcrypt.compare(credentials.password, user.password);
+          const isPasswordValid = await (user.password.startsWith("$2y$")
+            ? bcrypt.compare(password, user.password.replace("$2y$", "$2b$"))
+            : bcrypt.compare(password, user.password));
 
           if (!isPasswordValid) {
             console.log("Invalid password provided");
