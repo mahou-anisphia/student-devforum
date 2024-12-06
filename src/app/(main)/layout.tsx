@@ -8,7 +8,9 @@ export default function MainLayout({
   return (
     <>
       <Navbar />
-      <main className="mx-auto max-w-7xl px-4 py-8">{children}</main>
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        <div className="grid grid-cols-12 gap-4">{children}</div>
+      </div>
     </>
   );
 }

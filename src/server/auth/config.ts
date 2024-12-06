@@ -7,7 +7,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 import { db } from "~/server/db";
-import { env } from "~/env";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {

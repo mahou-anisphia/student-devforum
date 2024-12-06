@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { type BuiltInProviderType } from "next-auth/providers";
 import { type LiteralUnion, getProviders, signIn } from "next-auth/react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   Card,
   CardContent,
@@ -14,7 +17,24 @@ import {
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+
+const signInSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
+});
+
+type SignInSchema = z.infer<typeof signInSchema>;
 
 export default function SignInPage() {
   const [providers, setProviders] = useState<Record<
@@ -27,10 +47,16 @@ export default function SignInPage() {
       callbackUrl: string;
     }
   > | null>(null);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
+
+  const form = useForm<SignInSchema>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
 
   useEffect(() => {
     const fetchProviders = async () => {
@@ -51,11 +77,10 @@ export default function SignInPage() {
     (provider) => provider.type === "credentials",
   );
 
-  const handleCredentialsSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: SignInSchema) => {
     await signIn("credentials", {
-      username,
-      password,
+      username: data.username,
+      password: data.password,
       callbackUrl: "/",
     });
   };
@@ -63,10 +88,20 @@ export default function SignInPage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-4">
       <Card className="mx-auto w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
-          <CardDescription>
-            Choose your preferred sign in method
+        <CardHeader className="space-y-4">
+          <div className="flex justify-center">
+            <Image
+              src="/favicon.png"
+              alt="Chiyu Lab Logo"
+              width={64}
+              height={64}
+            />
+          </div>
+          <CardTitle className="text-center text-2xl font-bold">
+            Join the Chiyu Lab DEV community
+          </CardTitle>
+          <CardDescription className="text-center">
+            Chiyu Lab is a community founded by 4 amazing student developers
           </CardDescription>
           {error && (
             <p className="text-sm text-red-500">
@@ -102,37 +137,82 @@ export default function SignInPage() {
           )}
 
           {credentialsProvider && (
-            <form onSubmit={handleCredentialsSignIn} className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="grid gap-4"
+              >
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <Input placeholder="username" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input type="password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <Button type="submit" className="w-full">
-                Sign in with username
-              </Button>
-            </form>
+                <Button type="submit" className="w-full">
+                  Sign in with username
+                </Button>
+              </form>
+            </Form>
           )}
-        </CardContent>
-        <CardFooter>
-          <p className="text-sm text-muted-foreground">
-            By signing in, you are agreeing to our privacy policy, terms of use
-            and code of conduct.
+          <p className="text-center text-sm italic text-muted-foreground">
+            By signing in, you are agreeing to our{" "}
+            <Link
+              href="/privacy-policy"
+              className="text-primary hover:underline"
+            >
+              privacy policy
+            </Link>
+            ,{" "}
+            <Link href="/terms-of-use" className="text-primary hover:underline">
+              terms of use
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="/code-of-conduct"
+              className="text-primary hover:underline"
+            >
+              code of conduct
+            </Link>
+            .
           </p>
+        </CardContent>
+        <CardFooter className="flex flex-col items-center">
+          <div className="relative w-full">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t" />
+            </div>
+          </div>
+          <div className="mt-4 flex flex-col items-center gap-2 text-xs">
+            <span className="text-muted-foreground">
+              New to Chiyu Developer Community?
+            </span>
+            <Link
+              href="/auth/signup"
+              className="font-medium text-primary hover:underline"
+            >
+              Create account
+            </Link>
+          </div>
         </CardFooter>
       </Card>
     </main>
