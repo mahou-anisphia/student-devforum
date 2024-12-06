@@ -1,11 +1,16 @@
 "use client";
 
 import { useState } from "react";
-
 import { api } from "~/trpc/react";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Form, FormControl, FormField, FormItem } from "~/components/ui/form";
+import { useForm } from "react-hook-form";
 
 export function LatestPost() {
   const [latestPost] = api.post.getLatest.useSuspenseQuery();
+  const form = useForm();
 
   const utils = api.useUtils();
   const [name, setName] = useState("");
@@ -17,34 +22,37 @@ export function LatestPost() {
   });
 
   return (
-    <div className="w-full max-w-xs">
-      {latestPost ? (
-        <p className="truncate">Your most recent post: {latestPost.name}</p>
-      ) : (
-        <p>You have no posts yet.</p>
-      )}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          createPost.mutate({ name });
-        }}
-        className="flex flex-col gap-2"
-      >
-        <input
-          type="text"
-          placeholder="Title"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-full px-4 py-2 text-black"
-        />
-        <button
-          type="submit"
-          className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
-          disabled={createPost.isPending}
+    <Card className="w-full max-w-xs">
+      <CardHeader>
+        <CardTitle>Latest Post</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {latestPost ? (
+          <p className="truncate text-muted-foreground">
+            Your most recent post: {latestPost.name}
+          </p>
+        ) : (
+          <p className="text-muted-foreground">You have no posts yet.</p>
+        )}
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            createPost.mutate({ name });
+          }}
+          className="mt-4 flex flex-col gap-4"
         >
-          {createPost.isPending ? "Submitting..." : "Submit"}
-        </button>
-      </form>
-    </div>
+          <Input
+            type="text"
+            placeholder="Title"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <Button type="submit" disabled={createPost.isPending}>
+            {createPost.isPending ? "Submitting..." : "Submit"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,50 +1,54 @@
 import Link from "next/link";
 import { auth } from "~/server/auth";
+import { Button } from "~/components/ui/button";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "~/components/ui/navigation-menu";
 
 export async function Navbar() {
   const session = await auth();
 
   return (
-    <nav className="bg-white shadow-lg">
+    <nav className="border-b bg-background">
       <div className="mx-auto max-w-7xl px-4">
         <div className="flex h-16 justify-between">
-          <div className="flex space-x-8">
-            <Link
-              href="/"
-              className="inline-flex items-center px-1 pt-1 text-lg font-medium text-gray-900"
-            >
-              Home
-            </Link>
-            <Link
-              href="/posts"
-              className="inline-flex items-center px-1 pt-1 text-lg font-medium text-gray-500 hover:text-gray-900"
-            >
-              Posts
-            </Link>
-          </div>
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <Link href="/" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Home
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link href="/posts" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Posts
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+
           <div className="flex items-center space-x-4">
             {session?.user ? (
               <>
-                <Link
-                  href="/profile"
-                  className="text-gray-500 hover:text-gray-900"
-                >
-                  Profile
-                </Link>
-                <Link
-                  href="/api/auth/signout"
-                  className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
-                >
-                  Sign out
-                </Link>
+                <Button variant="ghost" asChild>
+                  <Link href="/profile">Profile</Link>
+                </Button>
+                <Button variant="default" asChild>
+                  <Link href="/auth/signout">Sign out</Link>
+                </Button>
               </>
             ) : (
-              <Link
-                href="/api/auth/signin"
-                className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
-              >
-                Sign in
-              </Link>
+              <Button variant="default" asChild>
+                <Link href="/auth/signin">Sign in</Link>
+              </Button>
             )}
           </div>
         </div>

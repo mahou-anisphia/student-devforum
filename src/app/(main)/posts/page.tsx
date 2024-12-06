@@ -1,10 +1,17 @@
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+
 export default function PostsPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Posts</h1>
-      <div className="rounded-lg bg-white p-6 shadow">
-        <p className="text-gray-600">Posts page coming soon...</p>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>All Posts</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">Posts page coming soon...</p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
