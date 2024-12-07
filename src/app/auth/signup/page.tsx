@@ -157,9 +157,9 @@ export default function SignUpPage() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={registerMutation.isLoading}
+                disabled={registerMutation.isPending}
               >
-                {registerMutation.isLoading ? "Creating account..." : "Sign up"}
+                {registerMutation.isPending ? "Creating account..." : "Sign up"}
               </Button>
             </form>
           </Form>
