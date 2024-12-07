@@ -73,7 +73,7 @@ export default function SignUpPage() {
   });
 
   const onSubmit = async (data: SignUpSchema) => {
-    await registerMutation.mutate(data);
+    await registerMutation.mutateAsync(data);
   };
 
   return (
