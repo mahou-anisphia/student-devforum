@@ -6,6 +6,7 @@ import { type LiteralUnion, getProviders, signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { FaGoogle, FaDiscord, FaGithub } from "react-icons/fa";
 import {
   Card,
   CardContent,
@@ -34,6 +35,19 @@ const signInSchema = z.object({
 });
 
 type SignInSchema = z.infer<typeof signInSchema>;
+
+const getProviderIcon = (providerId: string) => {
+  switch (providerId) {
+    case "google":
+      return <FaGoogle className="mr-2 h-4 w-4" />;
+    case "discord":
+      return <FaDiscord className="mr-2 h-4 w-4" />;
+    case "github":
+      return <FaGithub className="mr-2 h-4 w-4" />;
+    default:
+      return null;
+  }
+};
 
 export default function SignInClient() {
   const [providers, setProviders] = useState<Record<
@@ -86,7 +100,7 @@ export default function SignInClient() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-4">
-      <Card className="mx-auto w-full max-w-md">
+      <Card className="max-w-l w-xl mx-auto">
         <CardHeader className="space-y-4">
           <div className="flex justify-center">
             <Image
@@ -118,7 +132,12 @@ export default function SignInClient() {
               className="w-full"
               onClick={() => void signIn(provider.id, { callbackUrl: "/" })}
             >
-              Continue with {provider.name}
+              <div className="relative flex w-full items-center justify-center">
+                <div className="absolute left-0">
+                  {getProviderIcon(provider.id)}
+                </div>
+                <div>Continue with {provider.name}</div>
+              </div>
             </Button>
           ))}
 
@@ -173,7 +192,7 @@ export default function SignInClient() {
               </form>
             </Form>
           )}
-          <p className="text-center text-sm italic text-muted-foreground">
+          <p className="mx-8 text-center text-sm italic text-muted-foreground">
             By signing in, you are agreeing to our{" "}
             <Link
               href="/privacy-policy"
@@ -183,8 +202,8 @@ export default function SignInClient() {
             </Link>
             ,{" "}
             <Link href="/terms-of-use" className="text-primary hover:underline">
-              terms of use
-            </Link>{" "}
+              terms of use,{" "}
+            </Link>
             and{" "}
             <Link
               href="/code-of-conduct"
