@@ -28,6 +28,7 @@ import {
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { useToast } from "~/hooks/use-toast";
 
 const signInSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -50,6 +51,7 @@ const getProviderIcon = (providerId: string) => {
 };
 
 export default function SignInClient() {
+  const { toast } = useToast();
   const [providers, setProviders] = useState<Record<
     LiteralUnion<BuiltInProviderType>,
     {
@@ -91,11 +93,37 @@ export default function SignInClient() {
   );
 
   const onSubmit = async (data: SignInSchema) => {
-    await signIn("credentials", {
-      username: data.username,
-      password: data.password,
-      callbackUrl: "/",
-    });
+    try {
+      const result = await signIn("credentials", {
+        username: data.username,
+        password: data.password,
+        callbackUrl: "/",
+        redirect: false,
+      });
+
+      if (result?.error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description:
+            result.error === "CredentialsSignin"
+              ? "Invalid username or password"
+              : "Something went wrong",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Signed in successfully!",
+        });
+        window.location.href = result?.url ?? "/";
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred",
+      });
+    }
   };
 
   return (
@@ -130,7 +158,13 @@ export default function SignInClient() {
               key={provider.id}
               variant="outline"
               className="w-full"
-              onClick={() => void signIn(provider.id, { callbackUrl: "/" })}
+              onClick={() =>
+                void signIn(provider.id, {
+                  callbackUrl: "/",
+                  redirect: true,
+                  error: "/auth/signin",
+                })
+              }
             >
               <div className="relative flex w-full items-center justify-center">
                 <div className="absolute left-0">

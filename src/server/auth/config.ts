@@ -98,6 +98,10 @@ export const authConfig = {
       },
     }),
   },
+  pages: {
+    signIn: "/auth/signin",
+    error: "/auth/signin",
+  },
   session: {
     strategy: "jwt",
   },
