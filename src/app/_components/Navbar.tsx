@@ -24,7 +24,7 @@ function generateUsername(name: string): string {
     lower: true,
     strict: true,
     trim: true,
-  }) as string;
+  });
 }
 
 export async function Navbar() {
