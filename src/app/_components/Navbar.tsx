@@ -3,8 +3,9 @@ import Image from "next/image";
 import { auth } from "~/server/auth";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { BellIcon, SearchIcon } from "lucide-react";
+import { BellIcon } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
+import slugify from "slugify";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,20 +14,22 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 
-function normalizeVietnamese(str: string): string {
-  return str
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
-    .replace(/[đĐ]/g, "d") // Replace Vietnamese d
-    .replace(/[^a-zA-Z0-9\s]/g, "") // Keep only alphanumeric and spaces
-    .toLowerCase()
-    .replace(/\s+/g, "_"); // Replace spaces with underscore
+function generateUsername(name: string): string {
+  if (!name) return "";
+
+  return slugify(name, {
+    replacement: "_",
+    remove: undefined,
+    lower: true,
+    strict: true,
+    trim: true,
+  }) as string;
 }
 
 export async function Navbar() {
   const session = await auth();
   const normalizedUsername = session?.user?.name
-    ? normalizeVietnamese(session.user.name)
+    ? generateUsername(session.user.name)
     : "";
 
   return (
@@ -43,13 +46,8 @@ export async function Navbar() {
                 className="h-8 w-8"
               />
             </Link>
-            <div className="relative w-full max-w-md">
-              <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search..."
-                className="w-full pl-9"
-              />
+            <div className="w-full max-w-md">
+              <Input type="search" placeholder="Search..." className="w-full" />
             </div>
           </div>
 
