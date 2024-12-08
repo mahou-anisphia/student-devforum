@@ -1,54 +1,138 @@
 import Link from "next/link";
+import Image from "next/image";
 import { auth } from "~/server/auth";
 import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { BellIcon, SearchIcon } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
 import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  navigationMenuTriggerStyle,
-} from "~/components/ui/navigation-menu";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+
+function normalizeVietnamese(str: string): string {
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
+    .replace(/[đĐ]/g, "d") // Replace Vietnamese d
+    .replace(/[^a-zA-Z0-9\s]/g, "") // Keep only alphanumeric and spaces
+    .toLowerCase()
+    .replace(/\s+/g, "_"); // Replace spaces with underscore
+}
 
 export async function Navbar() {
   const session = await auth();
+  const normalizedUsername = session?.user?.name
+    ? normalizeVietnamese(session.user.name)
+    : "";
 
   return (
     <nav className="border-b bg-background">
       <div className="mx-auto max-w-7xl px-4">
-        <div className="flex h-16 justify-between">
-          <NavigationMenu>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <Link href="/" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Home
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <Link href="/posts" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Posts
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+        <div className="flex h-16 items-center justify-between">
+          <div className="flex flex-1 items-center space-x-4">
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/favicon.png"
+                alt="Logo"
+                width={32}
+                height={32}
+                className="h-8 w-8"
+              />
+            </Link>
+            <div className="relative w-full max-w-md">
+              <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search..."
+                className="w-full pl-9"
+              />
+            </div>
+          </div>
 
           <div className="flex items-center space-x-4">
             {session?.user ? (
               <>
-                <Button variant="ghost" asChild>
-                  <Link href="/profile">Profile</Link>
+                <Button
+                  variant="outline"
+                  className="border-blue-500 text-blue-500 hover:bg-blue-50"
+                >
+                  <Link href="/posts/create">Create Post</Link>
                 </Button>
-                <Button variant="default" asChild>
-                  <Link href="/auth/signout">Sign out</Link>
+                <Button variant="ghost" size="icon" className="relative">
+                  <BellIcon className="h-5 w-5" />
+                  <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] font-medium text-white">
+                    0
+                  </span>
                 </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="focus:outline-none">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage
+                        src={session.user.image ?? ""}
+                        alt={session.user.name ?? ""}
+                      />
+                      <AvatarFallback>
+                        {session.user.name?.[0] ?? "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <div className="flex items-center gap-2 p-2">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={session.user.image ?? ""} />
+                        <AvatarFallback>
+                          {session.user.name?.[0] ?? "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <Link
+                        href="/profile"
+                        className="flex flex-col space-y-0.5 hover:opacity-80"
+                      >
+                        <p className="text-sm font-medium">
+                          {session.user.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          @{normalizedUsername}
+                        </p>
+                      </Link>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard">Dashboard</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/posts/create">Create Post</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/reading-list">Reading list</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/settings">Settings</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/auth/signout">Sign Out</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             ) : (
-              <Button variant="default" asChild>
-                <Link href="/auth/signin">Sign in</Link>
-              </Button>
+              <>
+                <Button variant="ghost" asChild>
+                  <Link href="/auth/signin">Sign in</Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-blue-500 text-blue-500 hover:bg-blue-50"
+                  asChild
+                >
+                  <Link href="/auth/signup">Create account</Link>
+                </Button>
+              </>
             )}
           </div>
         </div>

@@ -7,16 +7,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { FaGoogle, FaDiscord, FaGithub } from "react-icons/fa";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
+import { useToast } from "~/hooks/use-toast";
+import Link from "next/link";
+import Image from "next/image";
 import {
   Form,
   FormControl,
@@ -25,10 +18,9 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
-import { useToast } from "~/hooks/use-toast";
 
 const signInSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -63,7 +55,7 @@ export default function SignInClient() {
     }
   > | null>(null);
   const searchParams = useSearchParams();
-  const error = searchParams.get("error");
+  const error = searchParams?.get("error");
 
   const form = useForm<SignInSchema>({
     resolver: zodResolver(signInSchema),
@@ -127,9 +119,9 @@ export default function SignInClient() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center px-4">
-      <Card className="max-w-l w-xl mx-auto">
-        <CardHeader className="space-y-4">
+    <main className="flex min-h-screen flex-col items-center justify-center px-4 py-8">
+      <div className="max-w-l w-xl mx-auto my-8">
+        <div className="space-y-4">
           <div className="flex justify-center">
             <Image
               src="/favicon.png"
@@ -138,12 +130,12 @@ export default function SignInClient() {
               height={64}
             />
           </div>
-          <CardTitle className="text-center text-2xl font-bold">
+          <h1 className="text-center text-2xl font-bold">
             Join the Chiyu Lab DEV community
-          </CardTitle>
-          <CardDescription className="text-center">
+          </h1>
+          <p className="text-center text-muted-foreground">
             Chiyu Lab is a community founded by 4 amazing student developers
-          </CardDescription>
+          </p>
           {error && (
             <p className="text-sm text-red-500">
               {error === "CredentialsSignin"
@@ -151,8 +143,8 @@ export default function SignInClient() {
                 : "Something went wrong"}
             </p>
           )}
-        </CardHeader>
-        <CardContent className="grid gap-4">
+        </div>
+        <div className="mt-8 grid gap-4">
           {oauthProviders.map((provider) => (
             <Button
               key={provider.id}
@@ -247,8 +239,8 @@ export default function SignInClient() {
             </Link>
             .
           </p>
-        </CardContent>
-        <CardFooter className="flex flex-col items-center">
+        </div>
+        <div className="mt-8 flex flex-col items-center">
           <div className="relative w-full">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t" />
@@ -265,8 +257,8 @@ export default function SignInClient() {
               Create account
             </Link>
           </div>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
     </main>
   );
 }
