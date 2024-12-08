@@ -4,6 +4,7 @@ import { auth } from "~/server/auth";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { BellIcon } from "lucide-react";
+import { CiSearch } from "react-icons/ci";
 import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
 import slugify from "slugify";
 import {
@@ -40,14 +41,21 @@ export async function Navbar() {
             <Link href="/" className="flex items-center">
               <Image
                 src="/favicon.png"
-                alt="Logo"
-                width={32}
-                height={32}
-                className="h-8 w-8"
+                alt="DEV Community"
+                width={50}
+                height={40}
+                className="h-10"
               />
             </Link>
             <div className="w-full max-w-md">
-              <Input type="search" placeholder="Search..." className="w-full" />
+              <div className="relative">
+                <Input
+                  type="search"
+                  placeholder="Search..."
+                  className="w-full pl-9"
+                />
+                <CiSearch className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              </div>
             </div>
           </div>
 
