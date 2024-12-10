@@ -11,22 +11,36 @@ export default async function ProfilePage() {
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Profile</h1>
-      <Card>
-        <CardHeader>
-          <div className="flex items-center space-x-4">
-            <Avatar>
-              <AvatarImage src={session.user.image ?? ""} />
-              <AvatarFallback>{session.user.name?.[0] ?? "U"}</AvatarFallback>
-            </Avatar>
-            <CardTitle className="text-xl">{session.user.name}</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">Profile page coming soon...</p>
-        </CardContent>
-      </Card>
+    <div className="col-span-12 -mx-4 -mt-8">
+      <div className="relative">
+        {/* Background banner */}
+        <div className="h-32 w-full bg-blue-500" />
+
+        {/* Container to center the card */}
+        <div className="mx-auto max-w-4xl px-4">
+          {/* Card with shadow */}
+          <Card className="relative -mt-6 shadow-lg">
+            {/* Centered avatar at card top */}
+            <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2">
+              <Avatar className="h-32 w-32 border-4 border-blue-500">
+                <AvatarImage src={session.user.image ?? ""} />
+                <AvatarFallback className="text-2xl">
+                  {session.user.name?.[0] ?? "U"}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+
+            <CardContent className="pt-16">
+              <div className="text-center">
+                <h1 className="text-2xl font-bold">{session.user.name}</h1>
+                <p className="text-muted-foreground">
+                  @{session.user.name ?? "username"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

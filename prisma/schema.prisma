@@ -63,11 +63,37 @@ model User {
     accounts      Account[]
     sessions      Session[]
     posts         Post[]
-    // username - password login
     username      String?   @unique
     password      String?
+    joined        DateTime  @default(now())
+    profile       Profile? // Relation to profile
+    social        Social? // Relation to social
+}
 
-    @@index([username, password])
+model Profile {
+    id              String   @id @default(cuid())
+    userId          String   @unique
+    user            User     @relation(fields: [userId], references: [id])
+    bio             String?
+    location        String?
+    currentLearning String?
+    availableFor    String?
+    skills          String?
+    currentProject  String?
+    pronouns        Boolean?
+    work            String?
+    education       String?
+}
+
+model Social {
+    id       String  @id @default(cuid())
+    userId   String  @unique
+    user     User    @relation(fields: [userId], references: [id])
+    website  String?
+    twitter  String?
+    github   String?
+    linkedin String?
+    facebook String?
 }
 
 model VerificationToken {
