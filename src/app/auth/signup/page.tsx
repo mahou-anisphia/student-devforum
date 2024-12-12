@@ -1,72 +1,54 @@
 "use client";
 
-import { signIn } from "next-auth/react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "~/components/ui/form";
+import { useEffect, useState } from "react";
+import { type BuiltInProviderType } from "next-auth/providers";
+import { type LiteralUnion, getProviders, signIn } from "next-auth/react";
+import { FaGoogle, FaDiscord, FaGithub } from "react-icons/fa";
+import { MdEmail } from "react-icons/md";
 import Link from "next/link";
 import Image from "next/image";
-import { api } from "~/trpc/react";
-import { useToast } from "~/hooks/use-toast";
+import { Button } from "~/components/ui/button";
 
-const signUpSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  email: z.string().email("Invalid email address"),
-  name: z.string().min(2, "Name must be at least 2 characters"),
-});
-
-type SignUpSchema = z.infer<typeof signUpSchema>;
+const getProviderIcon = (providerId: string) => {
+  switch (providerId) {
+    case "google":
+      return <FaGoogle className="mr-2 h-4 w-4" />;
+    case "discord":
+      return <FaDiscord className="mr-2 h-4 w-4" />;
+    case "github":
+      return <FaGithub className="mr-2 h-4 w-4" />;
+    default:
+      return null;
+  }
+};
 
 export default function SignUpPage() {
-  const { toast } = useToast();
+  const [providers, setProviders] = useState<Record<
+    LiteralUnion<BuiltInProviderType>,
+    {
+      id: string;
+      name: string;
+      type: string;
+      signinUrl: string;
+      callbackUrl: string;
+    }
+  > | null>(null);
 
-  const registerMutation = api.user.register.useMutation({
-    onSuccess: async (data) => {
-      toast({
-        title: "Success",
-        description: "Account created successfully!",
-      });
-      // Sign in the user after successful registration
-      await signIn("credentials", {
-        username: data.username,
-        password: form.getValues("password"),
-        callbackUrl: "/",
-      });
-    },
-    onError: (error) => {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    },
-  });
+  useEffect(() => {
+    const fetchProviders = async () => {
+      const providers = await getProviders();
+      setProviders(providers);
+    };
+    fetchProviders().catch(console.error);
+  }, []);
 
-  const form = useForm<SignUpSchema>({
-    resolver: zodResolver(signUpSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-      email: "",
-      name: "",
-    },
-    mode: "onChange", // Enable validation on change
-  });
+  if (!providers) {
+    return null;
+  }
 
-  const onSubmit = async (data: SignUpSchema) => {
-    await registerMutation.mutateAsync(data);
-  };
+  const oauthProviders = Object.values(providers).filter(
+    (provider) => provider.type === "oauth" || provider.type === "oidc",
+  );
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-4 py-8">
@@ -84,100 +66,65 @@ export default function SignUpPage() {
             Create your account
           </h1>
           <p className="text-center text-muted-foreground">
-            Join the Chiyu Lab developer community
+            Join the Chiyu Lab DEV community - it's free and easy!
           </p>
         </div>
-
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="mt-8 grid gap-4"
-          >
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input placeholder="username" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="mahou-anisphia" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="anisphia@magicology.com"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <div className="mt-8 grid gap-4">
+          {oauthProviders.map((provider) => (
             <Button
-              type="submit"
+              key={provider.id}
+              variant="outline"
               className="w-full"
-              disabled={registerMutation.isPending}
+              onClick={() =>
+                void signIn(provider.id, {
+                  callbackUrl: "/",
+                  redirect: true,
+                  error: "/auth/signup",
+                })
+              }
             >
-              {registerMutation.isPending ? "Creating account..." : "Sign up"}
+              <div className="relative flex w-full items-center justify-center">
+                <div className="absolute left-0">
+                  {getProviderIcon(provider.id)}
+                </div>
+                <div>Sign up with {provider.name}</div>
+              </div>
             </Button>
-          </form>
-        </Form>
+          ))}
 
-        <p className="mx-8 mt-4 text-center text-sm italic text-muted-foreground">
-          By signing up, you are agreeing to our{" "}
-          <Link href="/privacy-policy" className="text-primary hover:underline">
-            privacy policy
+          <Link href="/auth/signup/signup-by-email" className="w-full">
+            <Button variant="outline" className="w-full">
+              <div className="relative flex w-full items-center justify-center">
+                <div className="absolute left-0">
+                  <MdEmail className="mr-2 h-4 w-4" />
+                </div>
+                <div>Sign up with Email</div>
+              </div>
+            </Button>
           </Link>
-          ,{" "}
-          <Link href="/terms-of-use" className="text-primary hover:underline">
-            terms of use,{" "}
-          </Link>
-          and{" "}
-          <Link
-            href="/code-of-conduct"
-            className="text-primary hover:underline"
-          >
-            code of conduct
-          </Link>
-          .
-        </p>
 
+          <p className="mx-8 text-center text-sm italic text-muted-foreground">
+            By signing up, you are agreeing to our{" "}
+            <Link
+              href="/privacy-policy"
+              className="text-primary hover:underline"
+            >
+              privacy policy
+            </Link>
+            ,{" "}
+            <Link href="/terms-of-use" className="text-primary hover:underline">
+              terms of use,{" "}
+            </Link>
+            and{" "}
+            <Link
+              href="/code-of-conduct"
+              className="text-primary hover:underline"
+            >
+              code of conduct
+            </Link>
+            .
+          </p>
+        </div>
         <div className="mt-8 flex flex-col items-center">
           <div className="relative w-full">
             <div className="absolute inset-0 flex items-center">

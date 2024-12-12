@@ -63,9 +63,12 @@ model User {
     accounts      Account[]
     sessions      Session[]
     posts         Post[]
+    // Username - password developed
     username      String?   @unique
     password      String?
+    // Joined - developed
     joined        DateTime  @default(now())
+    // Additional Information for Profile page
     profile       Profile? // Relation to profile
     social        Social? // Relation to social
 }
