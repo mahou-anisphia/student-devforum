@@ -66,7 +66,7 @@ export default function SignUpPage() {
             Create your account
           </h1>
           <p className="text-center text-muted-foreground">
-            Join the Chiyu Lab DEV community - it's free and easy!
+            Join the Chiyu Lab DEV community - it&apos;s free and easy!
           </p>
         </div>
         <div className="mt-8 grid gap-4">
