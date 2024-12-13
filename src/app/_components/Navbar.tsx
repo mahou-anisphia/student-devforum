@@ -6,7 +6,7 @@ import { Input } from "~/components/ui/input";
 import { BellIcon } from "lucide-react";
 import { CiSearch } from "react-icons/ci";
 import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
-import slugify from "slugify";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,23 +15,8 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 
-function generateUsername(name: string): string {
-  if (!name) return "";
-
-  return slugify(name, {
-    replacement: "_",
-    remove: undefined,
-    lower: true,
-    strict: true,
-    trim: true,
-  });
-}
-
 export async function Navbar() {
   const session = await auth();
-  const normalizedUsername = session?.user?.name
-    ? generateUsername(session.user.name)
-    : "";
 
   return (
     <nav className="border-b bg-background">
@@ -102,7 +87,9 @@ export async function Navbar() {
                           {session.user.name}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          @{normalizedUsername}
+                          {session.user.id.length > 8
+                            ? `@${session.user.id.slice(0, 10)}...`
+                            : `@${session.user.id}`}
                         </p>
                       </Link>
                     </div>
