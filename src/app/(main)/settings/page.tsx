@@ -17,8 +17,17 @@ export default function SettingsPage() {
     setColor(e.target.value);
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Placeholder for form submission logic
+    console.log("Form submitted");
+  };
+
   return (
-    <div className="col-span-12 space-y-8 md:col-span-10 md:col-start-2">
+    <form
+      onSubmit={handleSubmit}
+      className="col-span-12 space-y-8 md:col-span-10 md:col-start-2"
+    >
       {/* Social Links */}
       <Card>
         <CardHeader>
@@ -88,7 +97,6 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Coding */}
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl font-semibold">
@@ -96,21 +104,33 @@ export default function SettingsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
+          <div className="grid gap-1.5">
             <label className="text-sm font-medium">Currently Learning</label>
-            <Input placeholder="What technologies are you currently learning?" />
+            <small className="-mt-1 text-xs text-gray-500">
+              What technologies are you currently learning?
+            </small>
+            <Input placeholder="JavaScript" />
           </div>
-          <div className="space-y-2">
+          <div className="grid gap-1.5">
             <label className="text-sm font-medium">Available For</label>
-            <Input placeholder="What kind of opportunities are you open to?" />
+            <small className="-mt-1 text-xs text-gray-500">
+              What kind of opportunities are you open to?
+            </small>
+            <Input placeholder="Internships" />
           </div>
-          <div className="space-y-2">
+          <div className="grid gap-1.5">
             <label className="text-sm font-medium">Skills</label>
-            <Input placeholder="Your technical skills (e.g., React, Node.js, Python)" />
+            <small className="-mt-1 text-xs text-gray-500">
+              Your technical skills (e.g., React, Node.js, Python)
+            </small>
+            <Input placeholder="React, Node.js" />
           </div>
-          <div className="space-y-2">
+          <div className="grid gap-1.5">
             <label className="text-sm font-medium">Current Projects</label>
-            <Input placeholder="What are you working on right now?" />
+            <small className="-mt-1 text-xs text-gray-500">
+              What are you working on right now?
+            </small>
+            <Input placeholder="Personal website" />
           </div>
         </CardContent>
       </Card>
@@ -181,6 +201,19 @@ export default function SettingsPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+
+      <Card>
+        <CardContent className="flex justify-center py-4">
+          {" "}
+          {/* Added padding to the top */}
+          <button
+            type="submit"
+            className="w-full rounded bg-blue-600 py-2 font-semibold text-white transition hover:bg-blue-700"
+          >
+            Submit
+          </button>
+        </CardContent>
+      </Card>
+    </form>
   );
 }
