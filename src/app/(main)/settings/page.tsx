@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -14,12 +13,12 @@ import { useForm } from "react-hook-form";
 import { api } from "~/trpc/react";
 import { useToast } from "~/hooks/use-toast";
 
-// Types to match the Zod schema
-type ProfileFormType = {
+// Define the form's data structure to match the API types
+type FormData = {
   user: {
-    username: string;
-    email: string;
-    name: string;
+    username: string | null;
+    email: string | null;
+    name: string | null;
     profileColor: string;
   };
   profile: {
@@ -46,39 +45,10 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const utils = api.useUtils();
 
+  // Get profile settings
   const { data: profileData, isLoading } = api.profile.getSettings.useQuery();
 
-  // Form initialization with null values
-  const form = useForm<ProfileFormType>({
-    defaultValues: {
-      user: {
-        username: "",
-        email: "",
-        name: "",
-        profileColor: "#5877ba",
-      },
-      profile: {
-        bio: null,
-        location: null,
-        currentLearning: null,
-        availableFor: null,
-        skills: null,
-        currentProject: null,
-        pronouns: null,
-        work: null,
-        education: null,
-      },
-      social: {
-        website: null,
-        twitter: null,
-        github: null,
-        linkedin: null,
-        facebook: null,
-      },
-    },
-  });
-
-  // Mutations
+  // Update mutations for each section
   const updateUser = api.profile.updateUser.useMutation({
     onSuccess: () => {
       toast({
@@ -130,17 +100,46 @@ export default function SettingsPage() {
     },
   });
 
+  const form = useForm<FormData>({
+    defaultValues: {
+      user: {
+        username: null,
+        email: null,
+        name: null,
+        profileColor: "#5877ba",
+      },
+      profile: {
+        bio: null,
+        location: null,
+        currentLearning: null,
+        availableFor: null,
+        skills: null,
+        currentProject: null,
+        pronouns: null,
+        work: null,
+        education: null,
+      },
+      social: {
+        website: null,
+        twitter: null,
+        github: null,
+        linkedin: null,
+        facebook: null,
+      },
+    },
+  });
+
   // Update form when data is loaded
   useEffect(() => {
     if (profileData) {
       form.reset({
         user: {
-          username: profileData.username || "",
-          email: profileData.email || "",
-          name: profileData.name || "",
-          profileColor: profileData.profileColor,
+          username: profileData.username,
+          email: profileData.email,
+          name: profileData.name,
+          profileColor: profileData.profileColor ?? "#5877ba",
         },
-        profile: profileData.profile || {
+        profile: profileData.profile ?? {
           bio: null,
           location: null,
           currentLearning: null,
@@ -151,7 +150,7 @@ export default function SettingsPage() {
           work: null,
           education: null,
         },
-        social: profileData.social || {
+        social: profileData.social ?? {
           website: null,
           twitter: null,
           github: null,
@@ -163,49 +162,69 @@ export default function SettingsPage() {
   }, [profileData, form]);
 
   const onSubmit = form.handleSubmit((data) => {
-    const { user, profile, social } = data;
+    // Helper function to filter out null values and get changed fields
+    // Helper function to filter out null values and convert to undefined for optional fields
+    const getChangedUserFields = (
+      current: FormData["user"],
+      initial: typeof profileData,
+    ) => {
+      const changed: Record<string, string | undefined> = {};
+      (
+        Object.entries(current) as [keyof FormData["user"], string | null][]
+      ).forEach(([key, value]) => {
+        if (key === "profileColor") {
+          // profileColor is required and always a string
+          const currentColor = value!; // Safe assertion as profileColor is required
+          if (currentColor !== initial?.profileColor) {
+            changed[key] = currentColor;
+          }
+        } else if (value !== null && value !== initial?.[key]) {
+          // For optional fields, we only include non-null values that have changed
+          changed[key] = value;
+        }
+      });
+      return changed;
+    };
 
-    // Helper function to get changed fields
-    const getChangedFields = <T extends Record<string, any>>(
+    // Helper function for profile and social fields that accept null
+    const getChangedFields = <
+      T extends Record<string, string | boolean | null>,
+    >(
       current: T,
       initial: T | null,
     ): Partial<T> => {
-      if (!initial) return current;
-
       const changed: Partial<T> = {};
-      Object.keys(current).forEach((key) => {
-        if (key !== "id" && key !== "userId" && current[key] !== initial[key]) {
-          changed[key] = current[key];
+      const initialValues = initial ?? ({} as T);
+      Object.entries(current).forEach(([key, value]) => {
+        if (value !== null && value !== initialValues[key as keyof T]) {
+          changed[key as keyof T] = value as T[keyof T];
         }
       });
       return changed;
     };
 
     // Get changed fields for each section
-    const userChanges = getChangedFields(user, {
-      username: profileData?.username || "",
-      email: profileData?.email || "",
-      name: profileData?.name || "",
-      profileColor: profileData?.profileColor,
-    });
-
-    const profileChanges = getChangedFields(
-      profile,
-      profileData?.profile || null,
+    const changedUserFields = getChangedUserFields(data.user, profileData);
+    const changedProfileFields = getChangedFields(
+      data.profile,
+      profileData?.profile ?? null,
     );
-    const socialChanges = getChangedFields(social, profileData?.social || null);
+    const changedSocialFields = getChangedFields(
+      data.social,
+      profileData?.social ?? null,
+    );
 
-    // Update only changed sections
-    if (Object.keys(userChanges).length > 0) {
-      updateUser.mutate(userChanges);
+    // Only update sections with changes
+    if (Object.keys(changedUserFields).length > 0) {
+      updateUser.mutate(changedUserFields);
     }
 
-    if (Object.keys(profileChanges).length > 0) {
-      updateProfileInfo.mutate(profileChanges);
+    if (Object.keys(changedProfileFields).length > 0) {
+      updateProfileInfo.mutate(changedProfileFields);
     }
 
-    if (Object.keys(socialChanges).length > 0) {
-      updateSocial.mutate(socialChanges);
+    if (Object.keys(changedSocialFields).length > 0) {
+      updateSocial.mutate(changedSocialFields);
     }
   });
 
@@ -385,7 +404,7 @@ export default function SettingsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="true">Show on profile</SelectItem>
-                <SelectItem value="false">Don't show</SelectItem>
+                <SelectItem value="false">Don&apos;t show</SelectItem>
               </SelectContent>
             </Select>
           </div>
