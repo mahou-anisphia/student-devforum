@@ -14,6 +14,10 @@ declare module "next-auth" {
       id: string;
     } & DefaultSession["user"];
   }
+
+  interface User {
+    profileColor?: string;
+  }
 }
 
 const credentialsSchema = z.object({
@@ -58,6 +62,7 @@ export const authConfig = {
               image: true,
               username: true,
               password: true,
+              profileColor: true,
             },
           });
 
@@ -80,6 +85,7 @@ export const authConfig = {
             name: user.name,
             email: user.email,
             image: user.image,
+            profileColor: user.profileColor,
           };
         } catch (error) {
           console.error("Authentication error:", error);

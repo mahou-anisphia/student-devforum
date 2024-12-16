@@ -71,6 +71,7 @@ model User {
     // Additional Information for Profile page
     profile       Profile? // Relation to profile
     social        Social? // Relation to social
+    profileColor  String    @default("#5877ba")
 }
 
 model Profile {

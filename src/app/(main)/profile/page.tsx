@@ -4,6 +4,8 @@ import { Card, CardContent } from "~/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
+import { createCaller } from "~/server/api/root";
+import { createTRPCContext } from "~/server/api/trpc";
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -12,11 +14,19 @@ export default async function ProfilePage() {
     redirect("/auth/signin");
   }
 
+  const context = await createTRPCContext({ headers: new Headers() });
+  const caller = createCaller(context);
+  const userData = await caller.profile.getSettings();
+  const profileColor = userData.profileColor ?? "#5877ba";
+
   return (
     <div className="col-span-12 -mx-4 -mt-8">
       <div className="relative">
         {/* Background banner */}
-        <div className="h-32 w-full bg-blue-500" />
+        <div
+          className="h-32 w-full"
+          style={{ backgroundColor: profileColor }}
+        />
 
         {/* Container to center the card */}
         <div className="mx-auto max-w-4xl px-4">
@@ -36,7 +46,10 @@ export default async function ProfilePage() {
 
             {/* Centered avatar at card top */}
             <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <Avatar className="h-32 w-32 border-4 border-blue-500">
+              <Avatar
+                className="h-32 w-32 border-4"
+                style={{ borderColor: profileColor }}
+              >
                 <AvatarImage src={session.user.image ?? ""} />
                 <AvatarFallback className="text-2xl">
                   {session.user.name?.[0] ?? "U"}
