@@ -13,15 +13,15 @@ const socialSchema = z.object({
 
 // Schema for profile information
 const profileSchema = z.object({
-  bio: z.string().max(500).nullish(),
-  location: z.string().max(100).nullish(),
-  currentLearning: z.string().max(200).nullish(),
-  availableFor: z.string().max(200).nullish(),
-  skills: z.string().max(200).nullish(),
-  currentProject: z.string().max(200).nullish(),
-  pronouns: z.boolean().nullish(),
-  work: z.string().max(200).nullish(),
-  education: z.string().max(200).nullish(),
+  bio: z.string().max(500).nullable(),
+  location: z.string().max(100).nullable(),
+  currentLearning: z.string().max(200).nullable(),
+  availableFor: z.string().max(200).nullable(),
+  skills: z.string().max(200).nullable(),
+  currentProject: z.string().max(200).nullable(),
+  pronouns: z.boolean().nullable(),
+  work: z.string().max(200).nullable(),
+  education: z.string().max(200).nullable(),
 });
 
 // Combined schema for all profile settings
@@ -51,15 +51,15 @@ const partialUserSchema = z
 
 const partialProfileSchema = z
   .object({
-    bio: z.string().max(500).nullish(),
-    location: z.string().max(100).nullish(),
-    currentLearning: z.string().max(200).nullish(),
-    availableFor: z.string().max(200).nullish(),
-    skills: z.string().max(200).nullish(),
-    currentProject: z.string().max(200).nullish(),
-    pronouns: z.boolean().nullish(),
-    work: z.string().max(200).nullish(),
-    education: z.string().max(200).nullish(),
+    bio: z.string().max(500).nullable(),
+    location: z.string().max(100).nullable(),
+    currentLearning: z.string().max(200).nullable(),
+    availableFor: z.string().max(200).nullable(),
+    skills: z.string().max(200).nullable(),
+    currentProject: z.string().max(200).nullable(),
+    pronouns: z.boolean().nullable(),
+    work: z.string().max(200).nullable(),
+    education: z.string().max(200).nullable(),
   })
   .partial();
 
