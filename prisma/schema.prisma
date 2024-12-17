@@ -14,16 +14,88 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+// Enhanced Post model with blog features
 model Post {
+    id             Int       @id @default(autoincrement())
+    title          String
+    content        String    @db.Text
+    status         String    @default("draft") // draft or published
+    featured_image String?
+    view_count     Int       @default(0)
+    published_at   DateTime?
+    createdAt      DateTime  @default(now())
+    updatedAt      DateTime  @updatedAt
+
+    // Relations
+    author     User             @relation(fields: [authorId], references: [id])
+    authorId   String
+    comments   Comment[]
+    categories CategoryToPost[]
+    tags       TagToPost[]
+
+    @@index([title])
+    @@index([status])
+    @@index([published_at])
+}
+
+// New Comment model
+model Comment {
     id        Int      @id @default(autoincrement())
-    name      String
+    content   String   @db.Text
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
+    // Relations
+    post           Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId         Int
+    author         User      @relation(fields: [authorId], references: [id])
+    authorId       String
+    parent_comment Comment?  @relation("CommentToComment", fields: [parentId], references: [id])
+    parentId       Int?
+    replies        Comment[] @relation("CommentToComment")
 
-    @@index([name])
+    @@index([postId])
+    @@index([authorId])
+}
+
+// New Category model
+model Category {
+    id          Int              @id @default(autoincrement())
+    name        String           @unique
+    slug        String           @unique
+    description String?          @db.Text
+    posts       CategoryToPost[]
+
+    @@index([slug])
+}
+
+// New Tag model
+model Tag {
+    id    Int         @id @default(autoincrement())
+    name  String      @unique
+    slug  String      @unique
+    posts TagToPost[]
+
+    @@index([slug])
+}
+
+// Many-to-many relation tables
+model CategoryToPost {
+    post       Post     @relation(fields: [postId], references: [id])
+    postId     Int
+    category   Category @relation(fields: [categoryId], references: [id])
+    categoryId Int
+
+    @@id([postId, categoryId])
+}
+
+model TagToPost {
+    post   Post @relation(fields: [postId], references: [id])
+    postId Int
+    tag    Tag  @relation(fields: [tagId], references: [id])
+    tagId  Int
+
+    @@id([postId, tagId])
 }
 
 // Necessary for Next auth
@@ -63,6 +135,8 @@ model User {
     accounts      Account[]
     sessions      Session[]
     posts         Post[]
+    // adding for advanced post features
+    comments      Comment[]
     // Username - password developed
     username      String?   @unique
     password      String?
