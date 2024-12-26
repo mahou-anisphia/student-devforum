@@ -80,7 +80,7 @@ export async function Navbar() {
                         </AvatarFallback>
                       </Avatar>
                       <Link
-                        href="/profile"
+                        href="/profile/me"
                         className="flex flex-col space-y-0.5 hover:opacity-80"
                       >
                         <p className="text-sm font-medium">

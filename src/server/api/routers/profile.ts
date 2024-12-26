@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 
 // Schema for social links
@@ -74,6 +78,26 @@ const partialSocialSchema = z
   .partial();
 
 export const profileRouter = createTRPCRouter({
+  getProfileById: publicProcedure
+    .input(z.string())
+    .query(async ({ ctx, input: userId }) => {
+      const user = await ctx.db.user.findUnique({
+        where: { id: userId },
+        include: {
+          profile: true,
+          social: true,
+        },
+      });
+
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+
+      return {
+        ...user,
+        email: undefined, // Remove email for privacy
+      };
+    }),
   // Get all profile settings
   getSettings: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
