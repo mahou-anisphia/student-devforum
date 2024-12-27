@@ -94,6 +94,46 @@ export const userRouter = createTRPCRouter({
     }),
 
   // Protected procedures
+  getCurrentProfile: protectedProcedure
+    .output(userResponseSchema)
+    .query(async ({ ctx }): Promise<UserResponse> => {
+      const userId = ctx.session.user.id;
+
+      const user = await ctx.db.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          name: true,
+          image: true,
+          profileColor: true,
+          joined: true,
+          profile: true,
+          social: true,
+        },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found",
+        });
+      }
+
+      return {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        name: user.name,
+        profileColor: user.profileColor,
+        profile: user.profile,
+        social: user.social,
+        image: user.image,
+        joined: user.joined,
+      };
+    }),
+
   updateProfile: protectedProcedure
     .input(updateProfileInputSchema)
     .output(userResponseSchema)

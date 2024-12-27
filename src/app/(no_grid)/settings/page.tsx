@@ -20,10 +20,8 @@ export default function SettingsPage() {
   const utils = api.useUtils();
 
   // Get profile settings using the new combined endpoint
-  const { data: profileData, isLoading } = api.user.getProfile.useQuery({
-    userId: "self", // You might need to adjust this based on your auth setup
-  });
-
+  const { data: profileData, isLoading } =
+    api.user.getCurrentProfile.useQuery();
   // Use the new combined update mutation
   const updateProfile = api.user.updateProfile.useMutation({
     onSuccess: () => {
