@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -12,50 +13,25 @@ import {
 import { useForm } from "react-hook-form";
 import { api } from "~/trpc/react";
 import { useToast } from "~/hooks/use-toast";
-
-// Define the form's data structure to match the API types
-type FormData = {
-  user: {
-    username: string | null;
-    email: string | null;
-    name: string | null;
-    profileColor: string;
-  };
-  profile: {
-    bio: string | null;
-    location: string | null;
-    currentLearning: string | null;
-    availableFor: string | null;
-    skills: string | null;
-    currentProject: string | null;
-    pronouns: boolean | null;
-    work: string | null;
-    education: string | null;
-  };
-  social: {
-    website: string | null;
-    twitter: string | null;
-    github: string | null;
-    linkedin: string | null;
-    facebook: string | null;
-  };
-};
+import type { UpdateProfileInput } from "~/server/api/routers/user/schema";
 
 export default function SettingsPage() {
   const { toast } = useToast();
   const utils = api.useUtils();
 
-  // Get profile settings
-  const { data: profileData, isLoading } = api.profile.getSettings.useQuery();
+  // Get profile settings using the new combined endpoint
+  const { data: profileData, isLoading } = api.user.getProfile.useQuery({
+    userId: "self", // You might need to adjust this based on your auth setup
+  });
 
-  // Update mutations for each section
-  const updateUser = api.profile.updateUser.useMutation({
+  // Use the new combined update mutation
+  const updateProfile = api.user.updateProfile.useMutation({
     onSuccess: () => {
       toast({
         title: "Success",
-        description: "User information updated successfully",
+        description: "Profile updated successfully",
       });
-      void utils.profile.getSettings.invalidate();
+      void utils.user.getProfile.invalidate();
     },
     onError: (error) => {
       toast({
@@ -66,46 +42,12 @@ export default function SettingsPage() {
     },
   });
 
-  const updateProfileInfo = api.profile.updateProfile.useMutation({
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Profile information updated successfully",
-      });
-      void utils.profile.getSettings.invalidate();
-    },
-    onError: (error) => {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    },
-  });
-
-  const updateSocial = api.profile.updateSocial.useMutation({
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Social links updated successfully",
-      });
-      void utils.profile.getSettings.invalidate();
-    },
-    onError: (error) => {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    },
-  });
-
-  const form = useForm<FormData>({
+  const form = useForm<UpdateProfileInput>({
     defaultValues: {
       user: {
-        username: null,
-        email: null,
-        name: null,
+        username: "",
+        email: "",
+        name: "",
         profileColor: "#5877ba",
       },
       profile: {
@@ -134,9 +76,9 @@ export default function SettingsPage() {
     if (profileData) {
       form.reset({
         user: {
-          username: profileData.username,
-          email: profileData.email,
-          name: profileData.name,
+          username: profileData.username ?? "",
+          email: profileData.email ?? "",
+          name: profileData.name ?? "",
           profileColor: profileData.profileColor ?? "#5877ba",
         },
         profile: profileData.profile ?? {
@@ -162,70 +104,9 @@ export default function SettingsPage() {
   }, [profileData, form]);
 
   const onSubmit = form.handleSubmit((data) => {
-    // Helper function to filter out null values and get changed fields
-    // Helper function to filter out null values and convert to undefined for optional fields
-    const getChangedUserFields = (
-      current: FormData["user"],
-      initial: typeof profileData,
-    ) => {
-      const changed: Record<string, string | undefined> = {};
-      (
-        Object.entries(current) as [keyof FormData["user"], string | null][]
-      ).forEach(([key, value]) => {
-        if (key === "profileColor") {
-          // profileColor is required and always a string
-          const currentColor = value!; // Safe assertion as profileColor is required
-          if (currentColor !== initial?.profileColor) {
-            changed[key] = currentColor;
-          }
-        } else if (value !== null && value !== initial?.[key]) {
-          // For optional fields, we only include non-null values that have changed
-          changed[key] = value;
-        }
-      });
-      return changed;
-    };
-
-    // Helper function for profile and social fields that accept null
-    const getChangedFields = <
-      T extends Record<string, string | boolean | null>,
-    >(
-      current: T,
-      initial: T | null,
-    ): Partial<T> => {
-      const changed: Partial<T> = {};
-      const initialValues = initial ?? ({} as T);
-      Object.entries(current).forEach(([key, value]) => {
-        if (value !== null && value !== initialValues[key as keyof T]) {
-          changed[key as keyof T] = value as T[keyof T];
-        }
-      });
-      return changed;
-    };
-
-    // Get changed fields for each section
-    const changedUserFields = getChangedUserFields(data.user, profileData);
-    const changedProfileFields = getChangedFields(
-      data.profile,
-      profileData?.profile ?? null,
-    );
-    const changedSocialFields = getChangedFields(
-      data.social,
-      profileData?.social ?? null,
-    );
-
-    // Only update sections with changes
-    if (Object.keys(changedUserFields).length > 0) {
-      updateUser.mutate(changedUserFields);
-    }
-
-    if (Object.keys(changedProfileFields).length > 0) {
-      updateProfileInfo.mutate(changedProfileFields);
-    }
-
-    if (Object.keys(changedSocialFields).length > 0) {
-      updateSocial.mutate(changedSocialFields);
-    }
+    // Now we can just send the entire form data
+    // The backend will handle partial updates
+    updateProfile.mutate(data);
   });
 
   if (isLoading) {
@@ -465,18 +346,10 @@ export default function SettingsPage() {
         <CardContent className="flex justify-center py-4">
           <button
             type="submit"
-            className="w-full rounded bg-blue-600 py-2 font-semibold text-white transition hover:bg-blue-700"
-            disabled={
-              updateUser.isPending ||
-              updateProfileInfo.isPending ||
-              updateSocial.isPending
-            }
+            className="w-full rounded bg-blue-600 py-2 font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+            disabled={updateProfile.isPending}
           >
-            {updateUser.isPending ||
-            updateProfileInfo.isPending ||
-            updateSocial.isPending
-              ? "Saving..."
-              : "Save Changes"}
+            {updateProfile.isPending ? "Saving..." : "Save Changes"}
           </button>
         </CardContent>
       </Card>

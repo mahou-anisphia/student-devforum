@@ -1,13 +1,11 @@
-import { FC } from "react";
-import { z } from "zod";
+import { type FC } from "react";
+import type { UserResponse } from "~/server/api/routers/user/schema";
 
-const profileInfoGridSchema = z.object({
-  education: z.string().nullable(),
-  pronouns: z.boolean().nullable(),
-  work: z.string().nullable(),
-});
-
-type ProfileInfoGridProps = z.infer<typeof profileInfoGridSchema>;
+type ProfileInfoGridProps = {
+  education: NonNullable<UserResponse["profile"]>["education"];
+  pronouns: NonNullable<UserResponse["profile"]>["pronouns"];
+  work: NonNullable<UserResponse["profile"]>["work"];
+};
 
 export const ProfileInfoGrid: FC<ProfileInfoGridProps> = ({
   education,
@@ -16,18 +14,18 @@ export const ProfileInfoGrid: FC<ProfileInfoGridProps> = ({
 }) => {
   const sections = [
     { title: "Education", content: education },
-    { title: "Pronouns", content: pronouns ? "He / Him" : "She / Her" },
+    { title: "Pronouns", content: pronouns ? "He / Him" : null },
     { title: "Work", content: work },
   ].filter((section) => section.content);
 
   if (sections.length === 0) return null;
 
   const gridCols =
-    {
-      1: "grid-cols-1",
-      2: "grid-cols-2",
-      3: "grid-cols-3",
-    }[sections.length] ?? "grid-cols-3";
+    sections.length === 1
+      ? "grid-cols-1"
+      : sections.length === 2
+        ? "grid-cols-2"
+        : "grid-cols-3";
 
   return (
     <div className={`grid ${gridCols} w-full gap-6`}>

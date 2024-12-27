@@ -1,5 +1,4 @@
-//ProfileSocialAndInfo.tsx
-import { FC } from "react";
+import { type FC } from "react";
 import {
   MapPin,
   Cake,
@@ -10,17 +9,14 @@ import {
   Linkedin,
 } from "lucide-react";
 import Link from "next/link";
-import { z } from "zod";
-import { profileSchema } from "~/schema/profile";
+import type { UserResponse } from "~/server/api/routers/user/schema";
 
-const profileSocialAndInfoSchema = z.object({
-  location: z.string().nullable(),
-  joined: z.date(),
-  email: z.string().email().nullable(),
-  social: profileSchema.shape.social,
-});
-
-type ProfileSocialAndInfoProps = z.infer<typeof profileSocialAndInfoSchema>;
+type ProfileSocialAndInfoProps = {
+  location: NonNullable<UserResponse["profile"]>["location"];
+  joined: Date;
+  email: UserResponse["email"];
+  social: UserResponse["social"];
+};
 
 export const ProfileSocialAndInfo: FC<ProfileSocialAndInfoProps> = ({
   location,
@@ -28,8 +24,9 @@ export const ProfileSocialAndInfo: FC<ProfileSocialAndInfoProps> = ({
   email,
   social,
 }) => {
-  const formatLocation = (location: string) => {
-    const parts = location.split(",").map((part) => part.trim());
+  const formatLocation = (loc: string | null) => {
+    if (!loc) return null;
+    const parts = loc.split(",").map((part) => part.trim());
     return parts[parts.length - 1];
   };
 
@@ -38,12 +35,14 @@ export const ProfileSocialAndInfo: FC<ProfileSocialAndInfoProps> = ({
     year: "numeric",
   }).format(joined);
 
+  const formattedLocation = location ? formatLocation(location) : null;
+
   return (
     <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
-      {location && (
+      {formattedLocation && (
         <div className="flex items-center gap-1">
           <MapPin className="h-4 w-4" />
-          <span>{formatLocation(location)}</span>
+          <span>{formattedLocation}</span>
         </div>
       )}
       <div className="flex items-center gap-1">
@@ -74,6 +73,7 @@ export const ProfileSocialAndInfo: FC<ProfileSocialAndInfoProps> = ({
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-primary"
+            aria-label="GitHub Profile"
           >
             <Github className="h-4 w-4" />
           </Link>
@@ -84,6 +84,7 @@ export const ProfileSocialAndInfo: FC<ProfileSocialAndInfoProps> = ({
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-primary"
+            aria-label="Twitter Profile"
           >
             <Twitter className="h-4 w-4" />
           </Link>
@@ -94,6 +95,7 @@ export const ProfileSocialAndInfo: FC<ProfileSocialAndInfoProps> = ({
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-primary"
+            aria-label="LinkedIn Profile"
           >
             <Linkedin className="h-4 w-4" />
           </Link>

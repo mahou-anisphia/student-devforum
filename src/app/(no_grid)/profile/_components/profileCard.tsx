@@ -1,27 +1,22 @@
-// components/profile/ProfileCard.tsx
-import { FC } from "react";
+import { type FC } from "react";
 import { Card, CardContent } from "~/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import Link from "next/link";
-import { z } from "zod";
-import { profileSchema, type ProfileWithDetails } from "~/schema/profile";
+import { type UserResponse } from "~/server/api/routers/user/schema";
 import { ProfileInfoGrid } from "./profileInfoGrid";
 import { ProfileSocialAndInfo } from "./profileSocialAndInfo";
+import { SiComsol } from "react-icons/si";
 
-const profileCardSchema = z.object({
-  user: profileSchema,
-  isOwnProfile: z.boolean(),
-});
-
-type ProfileCardProps = z.infer<typeof profileCardSchema>;
+interface ProfileCardProps {
+  user: UserResponse;
+  isOwnProfile: boolean;
+}
 
 export const ProfileCard: FC<ProfileCardProps> = ({ user, isOwnProfile }) => {
-  // Validate the user data
-  const validatedUser = profileSchema.parse(user);
-  const profileColor = validatedUser.profileColor ?? "#5877ba";
-
+  const profileColor = user.profileColor ?? "#5877ba";
+  const defaultBio = "404 bio not found";
   return (
     <div className="relative">
       {/* Banner */}
@@ -53,11 +48,11 @@ export const ProfileCard: FC<ProfileCardProps> = ({ user, isOwnProfile }) => {
               style={{ borderColor: profileColor }}
             >
               <AvatarImage
-                src={validatedUser.image ?? ""}
-                alt={validatedUser.name ?? "Profile"}
+                src={user.image ?? ""}
+                alt={user.name ?? "Profile"}
               />
               <AvatarFallback className="text-2xl">
-                {validatedUser.name?.[0] ?? "U"}
+                {user.name?.[0] ?? "U"}
               </AvatarFallback>
             </Avatar>
           </div>
@@ -65,20 +60,20 @@ export const ProfileCard: FC<ProfileCardProps> = ({ user, isOwnProfile }) => {
           <CardContent className="space-y-6 pt-16">
             {/* Basic Info */}
             <div className="text-center">
-              <h1 className="text-2xl font-bold">{validatedUser.name}</h1>
-              <p className="text-muted-foreground">@{validatedUser.username}</p>
+              <h1 className="text-2xl font-bold">{user.name}</h1>
+              <p className="text-muted-foreground">@{user.username}</p>
 
               <p className="mt-4 text-muted-foreground">
-                {validatedUser.profile?.bio ?? "404 bio not found"}
+                {user.profile?.bio ?? defaultBio}
               </p>
             </div>
 
             {/* Social Links and Info */}
             <ProfileSocialAndInfo
-              location={validatedUser.profile?.location ?? null}
-              joined={validatedUser.joined}
-              email={validatedUser.email}
-              social={validatedUser.social}
+              location={user.profile?.location ?? null}
+              joined={user.joined}
+              email={user.email}
+              social={user.social}
             />
 
             {/* Separator */}
@@ -86,9 +81,9 @@ export const ProfileCard: FC<ProfileCardProps> = ({ user, isOwnProfile }) => {
 
             {/* Info Grid */}
             <ProfileInfoGrid
-              education={validatedUser.profile?.education ?? null}
-              pronouns={validatedUser.profile?.pronouns ?? null}
-              work={validatedUser.profile?.work ?? null}
+              education={user.profile?.education ?? null}
+              pronouns={user.profile?.pronouns ?? null}
+              work={user.profile?.work ?? null}
             />
           </CardContent>
         </Card>

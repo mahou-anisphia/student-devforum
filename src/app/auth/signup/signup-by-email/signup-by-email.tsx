@@ -18,7 +18,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { api } from "~/trpc/react";
 import { useToast } from "~/hooks/use-toast";
+import type { RegisterInput } from "~/server/api/routers/user/schema";
 
+// This should match the registerInputSchema from the backend
 const signUpSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -26,23 +28,40 @@ const signUpSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
 });
 
-type SignUpSchema = z.infer<typeof signUpSchema>;
-
 export default function SignUpPage() {
   const { toast } = useToast();
+  const form = useForm<RegisterInput>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+      email: "",
+      name: "",
+    },
+    mode: "onChange",
+  });
 
   const registerMutation = api.user.register.useMutation({
     onSuccess: async (data) => {
-      toast({
-        title: "Success",
-        description: "Account created successfully!",
-      });
-      // Sign in the user after successful registration
-      await signIn("credentials", {
-        username: data.username,
-        password: form.getValues("password"),
-        callbackUrl: "/",
-      });
+      if (data.username) {
+        // Add null check since username is nullable in response
+        toast({
+          title: "Success",
+          description: "Account created successfully!",
+        });
+        // Sign in the user after successful registration
+        await signIn("credentials", {
+          username: data.username,
+          password: form.getValues("password"),
+          callbackUrl: "/",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Something went wrong during registration",
+        });
+      }
     },
     onError: (error) => {
       toast({
@@ -53,18 +72,7 @@ export default function SignUpPage() {
     },
   });
 
-  const form = useForm<SignUpSchema>({
-    resolver: zodResolver(signUpSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-      email: "",
-      name: "",
-    },
-    mode: "onChange", // Enable validation on change
-  });
-
-  const onSubmit = async (data: SignUpSchema) => {
+  const onSubmit = async (data: RegisterInput) => {
     await registerMutation.mutateAsync(data);
   };
 
@@ -78,6 +86,7 @@ export default function SignUpPage() {
               alt="Chiyu Lab Logo"
               width={64}
               height={64}
+              priority
             />
           </div>
           <h1 className="text-center text-2xl font-bold">
@@ -100,7 +109,11 @@ export default function SignUpPage() {
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="username" {...field} />
+                    <Input
+                      placeholder="username"
+                      autoComplete="username"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -113,7 +126,11 @@ export default function SignUpPage() {
                 <FormItem>
                   <FormLabel>Full Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="mahou-anisphia" {...field} />
+                    <Input
+                      placeholder="mahou-anisphia"
+                      autoComplete="name"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -129,6 +146,7 @@ export default function SignUpPage() {
                     <Input
                       type="email"
                       placeholder="anisphia@magicology.com"
+                      autoComplete="email"
                       {...field}
                     />
                   </FormControl>
@@ -143,7 +161,11 @@ export default function SignUpPage() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} />
+                    <Input
+                      type="password"
+                      autoComplete="new-password"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
