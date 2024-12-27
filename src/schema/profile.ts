@@ -14,7 +14,7 @@ export const profileSchema = z.object({
     .object({
       bio: z.string().nullable(),
       location: z.string().nullable(),
-      pronouns: z.string().nullable(),
+      pronouns: z.boolean().nullable(),
       work: z.string().nullable(),
       education: z.string().nullable(),
     })

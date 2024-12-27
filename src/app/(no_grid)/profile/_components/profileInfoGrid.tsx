@@ -3,7 +3,7 @@ import { z } from "zod";
 
 const profileInfoGridSchema = z.object({
   education: z.string().nullable(),
-  pronouns: z.string().nullable(),
+  pronouns: z.boolean().nullable(),
   work: z.string().nullable(),
 });
 
@@ -16,7 +16,7 @@ export const ProfileInfoGrid: FC<ProfileInfoGridProps> = ({
 }) => {
   const sections = [
     { title: "Education", content: education },
-    { title: "Pronouns", content: pronouns },
+    { title: "Pronouns", content: pronouns ? "He / Him" : "She / Her" },
     { title: "Work", content: work },
   ].filter((section) => section.content);
 

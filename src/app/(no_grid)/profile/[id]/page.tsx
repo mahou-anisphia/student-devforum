@@ -32,7 +32,6 @@ export async function generateMetadata({
 export default async function ProfilePage({ params }: { params: Params }) {
   const resolvedParams = await params;
   const { id } = resolvedParams;
-
   const context = await createTRPCContext({ headers: new Headers() });
   const caller = createCaller(context);
   const session = await auth();
@@ -47,7 +46,16 @@ export default async function ProfilePage({ params }: { params: Params }) {
           user={{
             ...userData,
             email: userData.email ?? null,
-            profileColor: userData.profileColor || null,
+            profileColor: userData.profileColor ?? null,
+            profile: userData.profile
+              ? {
+                  bio: userData.profile.bio,
+                  location: userData.profile.location,
+                  pronouns: userData.profile.pronouns,
+                  work: userData.profile.work,
+                  education: userData.profile.education,
+                }
+              : null,
           }}
           isOwnProfile={isOwnProfile}
         />
