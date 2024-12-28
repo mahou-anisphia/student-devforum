@@ -66,8 +66,20 @@ export const userResponseSchema = z.object({
   joined: z.date(),
 });
 
+export const userActivityCountSchema = z.object({
+  userId: z.string(),
+});
+
+export const userActivityCountResponseSchema = z.object({
+  postsCount: z.number(),
+  commentsCount: z.number(),
+});
+
 // Type exports
 export type UserResponse = z.infer<typeof userResponseSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileInputSchema>;
 export type RegisterInput = z.infer<typeof registerInputSchema>;
 export type ProfileId = z.infer<typeof profileIdSchema>;
+export type UserActivityCountResponse = z.infer<
+  typeof userActivityCountResponseSchema
+>;

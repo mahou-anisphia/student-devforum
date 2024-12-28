@@ -10,11 +10,34 @@ import {
   updateProfileInputSchema,
   userResponseSchema,
   profileIdSchema,
+  userActivityCountResponseSchema,
+  userActivityCountSchema,
   type UserResponse,
+  type UserActivityCountResponse,
 } from "./schema";
 
 export const userRouter = createTRPCRouter({
   // Public procedures
+
+  getUserActivityCount: publicProcedure
+    .input(userActivityCountSchema)
+    .output(userActivityCountResponseSchema)
+    .query(async ({ ctx, input }): Promise<UserActivityCountResponse> => {
+      const [postsCount, commentsCount] = await Promise.all([
+        ctx.db.post.count({
+          where: { authorId: input.userId },
+        }),
+        ctx.db.comment.count({
+          where: { authorId: input.userId },
+        }),
+      ]);
+
+      return {
+        postsCount,
+        commentsCount,
+      };
+    }),
+
   register: publicProcedure
     .input(registerInputSchema)
     .mutation(async ({ ctx, input }) => {

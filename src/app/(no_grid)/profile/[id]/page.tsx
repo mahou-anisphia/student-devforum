@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { createCaller } from "~/server/api/root";
 import { createTRPCContext } from "~/server/api/trpc";
 import { ProfileCard } from "../_components/profileCard";
+import { ProfileActivityCard } from "../_components/profileActivityCard";
+import { ProfilePostsCard } from "../_components/profilePostCard";
 import { auth } from "~/server/auth";
 
 type Params = Promise<{ id: string }>;
@@ -45,15 +47,32 @@ export default async function ProfilePage({ params }: { params: Params }) {
     const isOwnProfile = session?.user?.id === userData.id;
 
     return (
-      <div className="col-span-12 -mx-4 -mt-8">
-        <ProfileCard
-          user={{
-            ...userData,
-            // Add any missing required fields from UserResponse type
-            joined: new Date(), // You might want to get this from the actual user data
-          }}
-          isOwnProfile={isOwnProfile}
-        />
+      <div>
+        {/* Banner and Profile Card - full width */}
+        <div className="w-full">
+          <ProfileCard
+            user={{
+              ...userData,
+              joined: new Date(),
+            }}
+            isOwnProfile={isOwnProfile}
+          />
+        </div>
+        {/* Activity and Posts Cards - contained to profile card width */}
+        <div className="relative mt-8">
+          {" "}
+          {/* Added mt-8 for margin-top spacing */}
+          <div className="mx-auto max-w-4xl px-4">
+            <div className="grid grid-cols-3 gap-4">
+              <div className="col-span-1">
+                <ProfileActivityCard userId={userData.id} />
+              </div>
+              <div className="col-span-2">
+                <ProfilePostsCard />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   } catch (error) {
