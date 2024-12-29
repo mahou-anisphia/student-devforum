@@ -5,6 +5,7 @@ import { createTRPCContext } from "~/server/api/trpc";
 import { ProfileCard } from "../_components/profileCard";
 import { ProfileActivityCard } from "../_components/profileActivityCard";
 import { ProfilePostsCard } from "../_components/profilePostCard";
+import ProfileInfoCards from "../_components/profileInformationCard";
 import { auth } from "~/server/auth";
 
 type Params = Promise<{ id: string }>;
@@ -64,7 +65,12 @@ export default async function ProfilePage({ params }: { params: Params }) {
           {/* Added mt-8 for margin-top spacing */}
           <div className="mx-auto max-w-4xl px-4">
             <div className="grid grid-cols-3 gap-4">
-              <div className="col-span-1">
+              <div className="space-y-6">
+                <ProfileInfoCards
+                  currentLearning={userData.profile?.currentLearning ?? null}
+                  skills={userData.profile?.skills ?? null}
+                  currentProject={userData.profile?.currentProject ?? null}
+                />
                 <ProfileActivityCard userId={userData.id} />
               </div>
               <div className="col-span-2">

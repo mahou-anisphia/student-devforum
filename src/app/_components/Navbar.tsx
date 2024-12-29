@@ -51,7 +51,7 @@ export async function Navbar() {
                   variant="outline"
                   className="border-blue-500 text-blue-500 hover:bg-blue-50"
                 >
-                  <Link href="/posts/create">Create Post</Link>
+                  <Link href="/new">Create Post</Link>
                 </Button>
                 <Button variant="ghost" size="icon" className="relative">
                   <BellIcon className="h-5 w-5" />
@@ -98,7 +98,7 @@ export async function Navbar() {
                       <Link href="/dashboard">Dashboard</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/posts/create">Create Post</Link>
+                      <Link href="/new">Create Post</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/reading-list">Reading list</Link>
