@@ -9,7 +9,7 @@ export default function MainLayout({
     <div className="min-h-screen bg-gray-50/50">
       <Navbar />
       <div className="max-w mx-auto py-8">
-        <div className="grid grid-cols-12 gap-4">{children}</div>
+        <div className="grid grid-cols-12">{children}</div>
       </div>
     </div>
   );

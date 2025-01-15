@@ -1,12 +1,11 @@
 import { FaHashtag, FaRegClock } from "react-icons/fa";
-import { Card } from "~/components/ui/card"; // Assuming shadcn provides a Card component
-
+import { Card } from "~/components/ui/card";
 import { FaHome, FaBook, FaTag, FaQuestionCircle } from "react-icons/fa";
-import { SiX, SiFacebook, SiGithub, SiLinkedin } from "react-icons/si"; // Social media icons
+import { SiX, SiFacebook, SiGithub, SiLinkedin } from "react-icons/si";
 
 export function HomeLeftSidebar() {
   return (
-    <aside className="sticky top-16 col-span-2 min-h-[calc(100vh-4rem)] overflow-y-auto border-r border-gray-200 p-6">
+    <aside className="sticky top-16 min-h-[calc(100vh-4rem)] overflow-y-auto p-6">
       <div className="flex h-full flex-col">
         <h2 className="mb-6 text-xl font-semibold text-gray-800">Navigation</h2>
         <nav className="space-y-4">
@@ -114,7 +113,7 @@ export function HomeLeftSidebar() {
 
 export function HomeRightSidebar() {
   return (
-    <aside className="sticky top-16 col-span-3 min-h-[calc(100vh-4rem)] overflow-y-auto border-l border-gray-200 p-6">
+    <aside className="sticky top-16 min-h-[calc(100vh-4rem)] overflow-y-auto p-6">
       <h2 className="mb-6 text-xl font-semibold text-gray-800">Discover</h2>
       <div className="space-y-6">
         <Card className="rounded-lg bg-gray-50 p-4 shadow-md">
