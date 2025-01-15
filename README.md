@@ -1,29 +1,103 @@
-# Create T3 App
+# DevTo Clone
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+A modern, type-safe web application that brings together the best of full-stack development.
 
-## What's next? How do I make an app with this?
+## 🌟 Features
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- End-to-end type safety from database to frontend
+- Server-side rendering with real-time client updates
+- Secure authentication and authorization
+- Automatic API route generation
+- Schema-driven database management
+- Built-in form validation and error handling
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## 🛠 Tech Stack
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+Our carefully selected technology stack ensures maximum developer productivity while maintaining enterprise-grade reliability:
 
-## Learn More
+### Frontend
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+- Next.js for server-side rendering and optimal page routing
+- TailwindCSS for utility-first styling
+- React Query for seamless server state management
+- React Hook Form for type-safe form handling
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+### Backend
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+- TypeScript for end-to-end type safety
+- Prisma as our type-safe ORM
+- NextAuth.js for secure authentication
+- tRPC for type-safe API development
 
-## How do I deploy this?
+### Development Tools
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+- ESLint for code quality
+- Prettier for consistent formatting
+- Zod for runtime type validation
+- TypeScript for static type checking
+
+## 🚀 Getting Started
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/mahou-anisphia/devto-clone.git
+```
+
+2. Install dependencies
+
+```bash
+pnpm install
+```
+
+3. Set up your environment variables
+
+```bash
+cp .env.example .env
+```
+
+4. Initialize the database
+
+```bash
+pnpm prisma db push
+```
+
+5. Start the development server
+
+```bash
+pnpm dev
+```
+
+## 🔒 Environment Variables
+
+Required environment variables:
+
+```env
+DATABASE_URL="your-database-url"
+NEXTAUTH_SECRET="your-auth-secret"
+NEXTAUTH_URL="http://localhost:4000"
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- The amazing modern web development community
+- Type-safety evangelists
+- Full-stack TypeScript pioneers
+- Schema-first database designers
+- End-to-end type generation enthusiasts
+
+---
+
+Built with ❤️ using modern web technologies
