@@ -1,6 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+// ~/components/features/post/PostEditor.tsx
 "use client";
 
-import React, { useState, KeyboardEvent, ChangeEvent } from "react";
+import React, {
+  useState,
+  KeyboardEvent,
+  ChangeEvent,
+  useCallback,
+} from "react";
+import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import type { Components } from "react-markdown";
+import type { DetailedHTMLProps, HTMLAttributes } from "react";
 import {
   Image,
   Bold,
@@ -12,6 +24,8 @@ import {
   Quote,
   Code,
   Zap,
+  Eye,
+  Edit,
   type LucideIcon,
   CodeSquare,
 } from "lucide-react";
@@ -22,36 +36,61 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { EditorTips } from "./_components/EditorTips";
-import { api } from "~/trpc/react";
-import type { RouterOutputs } from "~/trpc/react";
 
+// Types
 interface FormatButton {
   icon: LucideIcon;
   label: string;
+  markdown: string;
 }
 
 type FocusedSection = "title" | "tags" | "editor" | null;
 
 const formatButtons: FormatButton[] = [
-  { icon: Bold, label: "Bold" },
-  { icon: Italic, label: "Italic" },
-  { icon: Link, label: "Link" },
-  { icon: List, label: "Bulleted list" },
-  { icon: ListOrdered, label: "Numbered list" },
-  { icon: Heading, label: "Heading" },
-  { icon: Quote, label: "Quote" },
-  { icon: Code, label: "Inline code" },
-  { icon: CodeSquare, label: "Code block" },
-  { icon: Zap, label: "Embed" },
-  { icon: Image, label: "Image" },
+  { icon: Bold, label: "Bold", markdown: "**text**" },
+  { icon: Italic, label: "Italic", markdown: "*text*" },
+  { icon: Link, label: "Link", markdown: "[text](url)" },
+  { icon: List, label: "Bulleted list", markdown: "- item" },
+  { icon: ListOrdered, label: "Numbered list", markdown: "1. item" },
+  { icon: Heading, label: "Heading", markdown: "## Heading" },
+  { icon: Quote, label: "Quote", markdown: "> quote" },
+  { icon: Code, label: "Inline code", markdown: "`code`" },
+  { icon: CodeSquare, label: "Code block", markdown: "```\ncode\n```" },
+  { icon: Zap, label: "Embed", markdown: "{% embed url %}" },
+  { icon: Image, label: "Image", markdown: "![alt](url)" },
 ];
+
+// Markdown components configuration
+const markdownComponents: Components = {
+  code({
+    inline,
+    className,
+    children,
+    ...props
+  }: DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement> & {
+    inline?: boolean;
+  }) {
+    const match = /language-(\w+)/.exec(className ?? "");
+    return !inline && match ? (
+      <SyntaxHighlighter style={vscDarkPlus} language={match[1]} PreTag="div">
+        {String(children).replace(/\n$/, "")}
+      </SyntaxHighlighter>
+    ) : (
+      <code className={className} {...props}>
+        {children}
+      </code>
+    );
+  },
+};
 
 const PostEditor = () => {
   const [title, setTitle] = useState<string>("");
-  const [content, setContent] = useState<string>("");
+  const [content, setContent] = useState<string>("## Markdown Preview");
   const [tags, setTags] = useState<string[]>([]);
   const [focusedSection, setFocusedSection] = useState<FocusedSection>(null);
+  const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
 
   const handleAddTag = (e: KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === "Enter" && e.currentTarget.value && tags.length < 4) {
@@ -64,18 +103,46 @@ const PostEditor = () => {
     setTags(tags.filter((_, index) => index !== indexToRemove));
   };
 
+  const insertMarkdown = useCallback((markdown: string) => {
+    const textarea = document.querySelector("textarea");
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+
+    const before = text.substring(0, start);
+    const selected = text.substring(start, end);
+    const after = text.substring(end);
+
+    let insertedText = markdown;
+    if (selected) {
+      insertedText = markdown.replace("text", selected);
+    }
+
+    setContent(before + insertedText + after);
+
+    // Set cursor position after insertion
+    setTimeout(() => {
+      textarea.focus();
+      const newCursorPos = start + insertedText.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    }, 0);
+  }, []);
+
   return (
     <div className="mx-auto grid max-w-6xl grid-cols-3 gap-8">
       <div className="col-span-2">
         <div className="rounded-lg bg-white shadow">
           <div className="p-6">
             <div className="mb-6">
-              <button
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-800 transition-colors hover:bg-gray-50"
+              <Button
+                variant="outline"
+                className="text-gray-800 hover:bg-gray-50"
                 type="button"
               >
                 Add a cover image
-              </button>
+              </Button>
             </div>
 
             <input
@@ -123,13 +190,16 @@ const PostEditor = () => {
                   {formatButtons.map((button, index) => (
                     <Tooltip key={index}>
                       <TooltipTrigger asChild>
-                        <button
+                        <Button
                           type="button"
-                          className="rounded-md p-2 text-gray-600 transition-colors hover:bg-gray-100"
+                          variant="ghost"
+                          size="sm"
+                          className="rounded-md p-2 text-gray-600 hover:bg-gray-100"
                           aria-label={button.label}
+                          onClick={() => insertMarkdown(button.markdown)}
                         >
                           <button.icon size={20} />
-                        </button>
+                        </Button>
                       </TooltipTrigger>
                       <TooltipContent side="bottom" align="center">
                         <p>{button.label}</p>
@@ -140,15 +210,46 @@ const PostEditor = () => {
               </div>
             </div>
 
-            <textarea
-              placeholder="Write your post content here..."
-              value={content}
-              onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-                setContent(e.target.value)
+            <Tabs
+              defaultValue="write"
+              value={activeTab}
+              onValueChange={(value) =>
+                setActiveTab(value as "write" | "preview")
               }
-              onFocus={() => setFocusedSection("editor")}
-              className="mt-4 h-96 w-full resize-none border-none p-2 text-lg leading-relaxed placeholder-gray-400 outline-none"
-            />
+              className="mt-4"
+            >
+              <TabsList className="mb-4">
+                <TabsTrigger value="write" className="flex items-center gap-2">
+                  <Edit className="h-4 w-4" /> Write
+                </TabsTrigger>
+                <TabsTrigger
+                  value="preview"
+                  className="flex items-center gap-2"
+                >
+                  <Eye className="h-4 w-4" /> Preview
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="write" className="mt-0">
+                <textarea
+                  placeholder="Write your post content here..."
+                  value={content}
+                  onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                    setContent(e.target.value)
+                  }
+                  onFocus={() => setFocusedSection("editor")}
+                  className="h-96 w-full resize-none border-none p-2 text-lg leading-relaxed placeholder-gray-400 outline-none"
+                />
+              </TabsContent>
+
+              <TabsContent value="preview" className="mt-0">
+                <div className="prose h-96 max-w-none overflow-y-auto rounded-lg border border-gray-200 bg-white p-4">
+                  <ReactMarkdown components={markdownComponents}>
+                    {content}
+                  </ReactMarkdown>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
 
