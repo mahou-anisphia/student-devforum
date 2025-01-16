@@ -28,7 +28,9 @@ import {
   Edit,
   type LucideIcon,
   CodeSquare,
+  Loader2,
 } from "lucide-react";
+import { api } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
 import {
   Tooltip,
@@ -37,6 +39,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { useToast } from "~/hooks/use-toast";
 import { EditorTips } from "./_components/EditorTips";
 
 // Types
@@ -86,11 +89,32 @@ const markdownComponents: Components = {
 };
 
 const PostEditor = () => {
+  const { toast } = useToast();
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("## Markdown Preview");
   const [tags, setTags] = useState<string[]>([]);
   const [focusedSection, setFocusedSection] = useState<FocusedSection>(null);
   const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
+  const [status, setStatus] = useState<"draft" | "published">("draft");
+
+  const createPost = api.post.create.useMutation({
+    onSuccess: () => {
+      toast({
+        title: "Success!",
+        description:
+          status === "published"
+            ? "Your post has been published!"
+            : "Draft saved successfully!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleAddTag = (e: KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === "Enter" && e.currentTarget.value && tags.length < 4) {
@@ -129,6 +153,25 @@ const PostEditor = () => {
       textarea.setSelectionRange(newCursorPos, newCursorPos);
     }, 0);
   }, []);
+
+  const handleSubmit = async (submitStatus: "draft" | "published") => {
+    if (!title.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a title for your post",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setStatus(submitStatus);
+    createPost.mutate({
+      title: title.trim(),
+      content,
+      status: submitStatus,
+      tags,
+    });
+  };
 
   return (
     <div className="mx-auto grid max-w-6xl grid-cols-3 gap-8">
@@ -257,16 +300,43 @@ const PostEditor = () => {
           <Button
             variant="default"
             className="bg-blue-600 px-6 text-white hover:bg-blue-700"
+            onClick={() => handleSubmit("published")}
+            disabled={createPost.isPending}
           >
-            Publish
+            {createPost.isPending && status === "published" ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Publishing...
+              </>
+            ) : (
+              "Publish"
+            )}
           </Button>
           <Button
             variant="outline"
             className="border-gray-300 text-gray-700 hover:bg-gray-50"
+            onClick={() => handleSubmit("draft")}
+            disabled={createPost.isPending}
           >
-            Save draft
+            {createPost.isPending && status === "draft" ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              "Save draft"
+            )}
           </Button>
-          <Button variant="ghost" className="text-gray-600 hover:bg-gray-50">
+          <Button
+            variant="ghost"
+            className="text-gray-600 hover:bg-gray-50"
+            onClick={() => {
+              setTitle("");
+              setContent("## Markdown Preview");
+              setTags([]);
+            }}
+            disabled={createPost.isPending}
+          >
             Revert new changes
           </Button>
         </div>
