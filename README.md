@@ -1,103 +1,98 @@
-# DevTo Clone
+# StudentDevForum - Inspired by Dev.to
 
-A modern, type-safe web application that brings together the best of full-stack development.
+A full-stack web application I built using modern Next.js stack to learn type-safe programming and development practices. This project takes inspiration from Dev.to's community features while implementing them with current web technologies.
 
-## 🌟 Features
+## What I Built
 
-- End-to-end type safety from database to frontend
-- Server-side rendering with real-time client updates
-- Secure authentication and authorization
-- Automatic API route generation
-- Schema-driven database management
-- Built-in form validation and error handling
+My forum includes core features I wanted to learn:
+- Type safety across the entire application to catch errors early
+- Server rendering combined with live updates for better user experience
+- User authentication to handle accounts and permissions
+- Automatic API routes to simplify backend development
+- Database management using schemas
+- Form handling with built-in validation
 
-## 🛠 Tech Stack
+## Technologies I Used
 
-Our carefully selected technology stack ensures maximum developer productivity while maintaining enterprise-grade reliability:
+Through this project, I learned these modern web development tools:
 
-### Frontend
+For the Frontend:
+- Next.js - Learned server-side rendering and routing
+- TailwindCSS - Practiced modern CSS approaches
+- React Query - Managed server state
+- React Hook Form - Built type-safe forms
 
-- Next.js for server-side rendering and optimal page routing
-- TailwindCSS for utility-first styling
-- React Query for seamless server state management
-- React Hook Form for type-safe form handling
+For the Backend:
+- TypeScript - Implemented type safety throughout
+- Prisma - Worked with a type-safe database ORM
+- NextAuth.js - Added authentication
+- tRPC - Created type-safe APIs
 
-### Backend
+Development Tools I Learned:
+- ESLint - Improved code quality
+- Prettier - Maintained consistent formatting
+- Zod - Added runtime type checks
+- TypeScript - Practiced static typing
 
-- TypeScript for end-to-end type safety
-- Prisma as our type-safe ORM
-- NextAuth.js for secure authentication
-- tRPC for type-safe API development
+## Project Setup
 
-### Development Tools
-
-- ESLint for code quality
-- Prettier for consistent formatting
-- Zod for runtime type validation
-- TypeScript for static type checking
-
-## 🚀 Getting Started
-
-1. Clone the repository
-
+1. Get the code:
 ```bash
-git clone https://github.com/mahou-anisphia/devto-clone.git
+git clone https://github.com/mahou-anisphia/student-devforum.git
 ```
 
-2. Install dependencies
-
+2. Install what you need:
 ```bash
 pnpm install
 ```
 
-3. Set up your environment variables
-
+3. Set up environment:
 ```bash
 cp .env.example .env
 ```
 
-4. Initialize the database
-
+4. Set up database:
 ```bash
 pnpm prisma db push
 ```
 
-5. Start the development server
-
+5. Start development:
 ```bash
 pnpm dev
 ```
 
-## 🔒 Environment Variables
+## Environment Setup
 
-Required environment variables:
-
+You'll need these variables:
 ```env
 DATABASE_URL="your-database-url"
 NEXTAUTH_SECRET="your-auth-secret"
 NEXTAUTH_URL="http://localhost:4000"
 ```
 
-## 🤝 Contributing
+## How to Contribute
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+If you'd like to help me improve this learning project:
+1. Fork it
+2. Create a feature branch (`git checkout -b feature/your-idea`)
+3. Make your changes (`git commit -m 'Added this feature'`)
+4. Push your changes (`git push origin feature/your-idea`)
 5. Open a Pull Request
 
-## 📝 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This learning project uses the MIT License - see [LICENSE](LICENSE) for details.
 
-## 🙏 Acknowledgments
+## Thanks To
 
-- The amazing modern web development community
-- Type-safety evangelists
-- Full-stack TypeScript pioneers
-- Schema-first database designers
-- End-to-end type generation enthusiasts
+I learned a lot from:
+- Dev.to for community features inspiration
+- Web development communities and tutorials
+- TypeScript documentation and guides
+- Full-stack development resources
+- Database design materials
+- Type-safety learning resources
 
 ---
 
-Built with ❤️ using modern web technologies
+Built as a learning project to understand modern web development
