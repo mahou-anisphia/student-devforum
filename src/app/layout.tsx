@@ -5,6 +5,7 @@ import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { Toaster } from "~/components/ui/toaster";
+import { DisclaimerPopup } from "~/components/disclaimer-popup";
 
 export const metadata: Metadata = {
   title: "DevTo Clone",
@@ -19,6 +20,7 @@ export default function RootLayout({
     <html lang="en" className={GeistSans.variable}>
       <body>
         <TRPCReactProvider>{children}</TRPCReactProvider>
+        <DisclaimerPopup />
         <Toaster />
       </body>
     </html>
