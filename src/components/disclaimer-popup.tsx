@@ -39,7 +39,8 @@ export function DisclaimerPopup() {
         <div className="space-y-4 py-4 text-center">
           <p>
             This is <strong>not</strong> a phishing site or an official replica
-            of Dev.to.
+            of Dev.to. This site does not expect any potential user beside the
+            members of the lab.
           </p>
           <p>
             This is a small project built for testing newest technology
