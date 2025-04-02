@@ -38,13 +38,11 @@ export function DisclaimerPopup() {
         </DialogHeader>
         <div className="space-y-4 py-4 text-center">
           <p>
-            This is <strong>not</strong> a phishing site or an official replica
-            of Dev.to. This site does not expect any potential user beside the
-            members of the lab.
+            This is <strong>not</strong> an official replica of Dev.to.
           </p>
           <p>
-            This is a small project built for testing newest technology
-            integration and development processes.
+            This is a small demo project built for educational purposes and test
+            newest technologies in modern web development.
           </p>
           <p className="font-semibold">
             We do not have any relations with Dev.to or its parent company.
